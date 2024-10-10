@@ -84,7 +84,7 @@ def save_one_json(predn, jdict, path, class_map):
         jdict.append(
             {
                 "image_id": image_id,
-                "category_id": class_map[int(p[5])],
+                "category_id": class_map[int(p[5]+1)],
                 "bbox": [round(x, 3) for x in b],
                 "score": round(p[4], 5),
             }
@@ -135,7 +135,7 @@ def run(
     save_txt=False,  # save results to *.txt
     save_hybrid=False,  # save label+prediction hybrid results to *.txt
     save_conf=False,  # save confidences in --save-txt labels
-    save_json=False,  # save a COCO-JSON results file
+    save_json=True,  # save a COCO-JSON results file
     project=ROOT / "runs/val",  # save to project/name
     name="exp",  # save to project/name
     exist_ok=False,  # existing project/name ok, do not increment
@@ -328,7 +328,7 @@ def run(
         w = Path(weights[0] if isinstance(weights, list) else weights).stem if weights is not None else ""  # weights
         anno_json = str(Path("../datasets/coco/annotations/instances_val2017.json"))  # annotations
         if not os.path.exists(anno_json):
-            anno_json = os.path.join(data["path"], "annotations", "instances_val2017.json")
+            anno_json = str(Path("annotations/instances_val2017.json"))
         pred_json = str(save_dir / f"{w}_predictions.json")  # predictions
         LOGGER.info(f"\nEvaluating pycocotools mAP... saving {pred_json}...")
         with open(pred_json, "w") as f:
@@ -365,13 +365,13 @@ def run(
 def parse_opt():
     """Parses command-line options for YOLOv5 model inference configuration."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data", type=str, default=ROOT / "data/coco128.yaml", help="dataset.yaml path")
-    parser.add_argument("--weights", nargs="+", type=str, default=ROOT / "yolov5s.pt", help="model path(s)")
+    parser.add_argument("--data", type=str, default=ROOT / "Wider/COCO_train.yaml", help="dataset.yaml path")
+    parser.add_argument("--weights", nargs="+", type=str, default=ROOT / "runs/train/exp5/weights/best.pt", help="model path(s)")
     parser.add_argument("--batch-size", type=int, default=32, help="batch size")
-    parser.add_argument("--imgsz", "--img", "--img-size", type=int, default=640, help="inference size (pixels)")
-    parser.add_argument("--conf-thres", type=float, default=0.001, help="confidence threshold")
+    parser.add_argument("--imgsz", "--img", "--img-size", type=int, default=416, help="inference size (pixels)")
+    parser.add_argument("--conf-thres", type=float, default=0.01, help="confidence threshold")
     parser.add_argument("--iou-thres", type=float, default=0.6, help="NMS IoU threshold")
-    parser.add_argument("--max-det", type=int, default=300, help="maximum detections per image")
+    parser.add_argument("--max-det", type=int, default=100, help="maximum detections per image")
     parser.add_argument("--task", default="val", help="train, val, test, speed or study")
     parser.add_argument("--device", default="", help="cuda device, i.e. 0 or 0,1,2,3 or cpu")
     parser.add_argument("--workers", type=int, default=8, help="max dataloader workers (per RANK in DDP mode)")
@@ -381,7 +381,7 @@ def parse_opt():
     parser.add_argument("--save-txt", action="store_true", help="save results to *.txt")
     parser.add_argument("--save-hybrid", action="store_true", help="save label+prediction hybrid results to *.txt")
     parser.add_argument("--save-conf", action="store_true", help="save confidences in --save-txt labels")
-    parser.add_argument("--save-json", action="store_true", help="save a COCO-JSON results file")
+    parser.add_argument("--save-json", action="store_false", help="save a COCO-JSON results file")
     parser.add_argument("--project", default=ROOT / "runs/val", help="save to project/name")
     parser.add_argument("--name", default="exp", help="save to project/name")
     parser.add_argument("--exist-ok", action="store_true", help="existing project/name ok, do not increment")

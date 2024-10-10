@@ -4,9 +4,9 @@ import os
 import yaml
 
 # Load the COCO dataset
-with open('Wider/COCO_train.json', 'r') as json_file:
+with open('COCO_train.json', 'r') as json_file:
     coco_data_train = json.load(json_file)
-with open('Wider/COCO_val.json', 'r') as json_file:
+with open('COCO_val.json', 'r') as json_file:
     coco_data_val = json.load(json_file)
 
 # Prepare the data for YOLOv5 YAML format
@@ -18,8 +18,8 @@ dataset = {
 }
 
 # Create a directory to store YOLO formatted labels
-os.makedirs('Wider/labels/train', exist_ok=True)
-os.makedirs('Wider/labels/val', exist_ok=True)
+os.makedirs('labels/train', exist_ok=True)
+os.makedirs('labels/val', exist_ok=True)
 
 
 # Helper function to convert COCO bbox format to YOLO format
@@ -53,6 +53,7 @@ for annotation in coco_data_val['annotations']:
     class_id = annotation['category_id'] - 1  # YOLO class indexing starts at 0
     image_annotations_val[image_id].append([class_id] + yolo_bbox)
 
+
 # Save YOLO label files
 for image in coco_data_train['images']:
     image_id = image['id']
@@ -62,9 +63,10 @@ for image in coco_data_train['images']:
     base_image_name = os.path.basename(image_name)
 
     # Write annotations to a YOLO label file
-    with open(f'Wider/labels/train/{base_image_name}.txt', 'w') as label_file:
+    with open(f'labels/train/{base_image_name}.txt', 'w') as label_file:
         for annotation in image_annotations_train[image_id]:
             label_file.write(' '.join(map(str, annotation)) + '\n')
+
 
 for image in coco_data_val['images']:
     image_id = image['id']
@@ -74,12 +76,12 @@ for image in coco_data_val['images']:
     base_image_name = os.path.basename(image_name)
 
     # Write annotations to a YOLO label file
-    with open(f'Wider/labels/val/{base_image_name}.txt', 'w') as label_file:
+    with open(f'labels/val/{base_image_name}.txt', 'w') as label_file:
         for annotation in image_annotations_val[image_id]:
             label_file.write(' '.join(map(str, annotation)) + '\n')
 
 # Save the data to a YAML file
-with open('Wider/COCO_train.yaml', 'w') as yaml_file:
+with open('COCO_train.yaml', 'w') as yaml_file:
     yaml.dump(dataset, yaml_file, default_flow_style=False)
 
 
